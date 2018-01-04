@@ -1,0 +1,51 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: my-awesome-app-without-symlink-reading-deployment
+  labels:
+    app: my-awesome-app-without-symlink-reading
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-awesome-app-without-symlink-reading
+  template:
+    metadata:
+      labels:
+        app: my-awesome-app-without-symlink-reading
+    spec:
+      initContainers:
+      - name: funnel
+        image: robertdiebels/funnel
+        volumeMounts:
+        - mountPath: /usr/src/app/from/
+          name: configmap-volume
+        - mountPath: /usr/src/app/to/
+          name: persistent-volume
+          subPath: /away/from/root/we/go/
+      containers:
+      - name: myapp-container
+        image: busybox
+        command: ['sh', '-c', 'ls /opt/share/config']
+        volumeMounts:
+        - mountPath: /opt/share/config
+          name: persistent-volume
+          subPath: /away/from/root/we/go/
+      volumes:
+      - name: configmap-volume
+        configMap:
+          name: from-config
+      - name: persistent-volume
+        persistentVolumeClaim:
+          claimName: i-am-root
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: i-am-root
+spec:
+ accessModes:
+   - ReadWriteMany
+ resources:
+   requests:
+     storage: 10Mi

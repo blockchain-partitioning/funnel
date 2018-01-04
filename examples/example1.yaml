@@ -1,0 +1,51 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: my-awesome-app-without-symlink-reading-deployment
+  labels:
+    app: my-awesome-app-without-symlink-reading
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-awesome-app-without-symlink-reading
+  template:
+    metadata:
+      labels:
+        app: my-awesome-app-without-symlink-reading
+    spec:
+      initContainers:
+      - name: funnel
+        image: robertdiebels/funnel
+        volumeMounts:
+        - mountPath: /usr/src/app/from/
+          name: configmap-volume
+        - mountPath: /usr/src/app/to/
+          name: persistent-volume
+      containers:
+      - name: myapp-container
+        image: busybox
+        command: ['sh', '-c', 'ls /opt/share/config']
+        volumeMounts:
+        - mountPath: /opt/share/config
+          name: persistent-volume
+      volumes:
+      - name: configmap-volume
+        configMap:
+          name: from-config
+      - name: persistent-volume
+        persistentVolumeClaim:
+          claimName: alimony
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: alimony
+spec:
+ accessModes:
+   - ReadWriteMany
+ resources:
+   requests:
+     storage: 10Mi
+---
