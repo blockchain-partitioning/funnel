@@ -30,7 +30,7 @@ metadata:
   labels:
     app: my-awesome-app-without-symlink-reading
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: my-awesome-app-without-symlink-reading
@@ -40,19 +40,24 @@ spec:
         app: my-awesome-app-without-symlink-reading
     spec:
       initContainers:
-      - name: robertdiebels/funnel
+      - name: funnel
+        image: robertdiebels/funnel
         volumeMounts:
         - mountPath: /usr/src/app/from/
           name: configmap-volume
-        - mountPath: /user/src/app/to/
+        - mountPath: /usr/src/app/to/
           name: persistent-volume
       containers:
-      - name: my-awesome-app-without-symlink-reading
-        image: my-awesome-app-without-symlink-reading:1.0.0
+      - name: myapp-container
+        image: busybox
+        command: ['sh', '-c', 'ls /opt/share/config']
+        volumeMounts:
+        - mountPath: /opt/share/config
+          name: persistent-volume
       volumes:
       - name: configmap-volume
         configMap:
-          name: configmap
+          name: from-config
       - name: persistent-volume
         persistentVolumeClaim:
           claimName: alimony
@@ -80,7 +85,7 @@ metadata:
   labels:
     app: my-awesome-app-without-symlink-reading
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: my-awesome-app-without-symlink-reading
@@ -90,20 +95,26 @@ spec:
         app: my-awesome-app-without-symlink-reading
     spec:
       initContainers:
-      - name: robertdiebels/funnel
+      - name: funnel
+        image: robertdiebels/funnel
         volumeMounts:
         - mountPath: /usr/src/app/from/
           name: configmap-volume
-        - mountPath: /user/src/app/to/
+        - mountPath: /usr/src/app/to/
           name: persistent-volume
           subPath: /away/from/root/we/go/
       containers:
-      - name: my-awesome-app-without-symlink-reading
-        image: my-awesome-app-without-symlink-reading:1.0.0
+      - name: myapp-container
+        image: busybox
+        command: ['sh', '-c', 'ls /opt/share/config']
+        volumeMounts:
+        - mountPath: /opt/share/config
+          name: persistent-volume
+          subPath: /away/from/root/we/go/
       volumes:
       - name: configmap-volume
         configMap:
-          name: configmap
+          name: from-config
       - name: persistent-volume
         persistentVolumeClaim:
           claimName: i-am-root
