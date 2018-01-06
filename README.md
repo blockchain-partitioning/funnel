@@ -23,7 +23,7 @@ Funnel is mainly intended to map ConfigMaps to PersistentVolumes.
 Many permutations are possible. Some are listed below.
 #### ConfigMap to PersistentVolume (root-root)
 ````yaml
-apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
   name: my-awesome-app-without-symlink-reading-deployment
@@ -50,7 +50,7 @@ spec:
       containers:
       - name: myapp-container
         image: busybox
-        command: ['sh', '-c', 'ls /opt/share/config']
+        command: ['sh', '-c','echo "There should be something below this sentence"; ls /opt/share/config; echo "There should be nothing below this sentence."; ls -lR /opt/share/config | grep ^l']
         volumeMounts:
         - mountPath: /opt/share/config
           name: persistent-volume
@@ -74,11 +74,10 @@ spec:
    requests:
      storage: 10Mi
 ---
-
 ````
 #### ConfigMap to PersistentVolume (root-subpath)
 ````yaml
-apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
   name: my-awesome-app-without-symlink-reading-deployment
@@ -106,7 +105,7 @@ spec:
       containers:
       - name: myapp-container
         image: busybox
-        command: ['sh', '-c', 'ls /opt/share/config']
+        command: ['sh', '-c','echo "There should be something below this sentence"; ls /opt/share/config; echo "There should be nothing below this sentence."; ls -lR /opt/share/config | grep ^l']
         volumeMounts:
         - mountPath: /opt/share/config
           name: persistent-volume
