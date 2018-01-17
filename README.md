@@ -130,6 +130,32 @@ spec:
      storage: 10Mi
 ````
 
+### Logging
+By default only errors funnel only logs errors. However should you want to know if the copying of a file was done correctly you can specify a LOG_LEVEL.
+Current LOG_LEVEL options are:
+- DEBUG
+- ERROR
+
+#### Logging level example
+````yaml
+initContainers:
+  - name: funnel
+    image: robertdiebels/funnel
+    env:
+    - name: LOG_LEVEL
+      value: "DEBUG"
+    volumeMounts:
+    - mountPath: /usr/src/app/from/
+      name: configmap-volume
+    - mountPath: /usr/src/app/to/
+      name: persistent-volume
+      subPath: /away/from/root/we/go/
+````
+
+### Encoding
+Funnel uses NodeJS to read and write files. This means that it's default encoding is ``utf-8``. 
+Currently there are no plans to support other encodings.
+
 ## Trivia
 - When moving a liquid from one container to another container one often uses a funnel so the liquid does not spill.
 - Funneling is a term used for the allocation of a resource. For instance, 'The company was funneling all income towards the R&D department.'.
