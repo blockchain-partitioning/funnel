@@ -130,6 +130,73 @@ spec:
      storage: 10Mi
 ````
 
+#### Secret to PersistentVolume
+````yaml
+apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: my-awesome-app-without-symlink-reading-deployment
+  labels:
+    app: my-awesome-app-without-symlink-reading
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-awesome-app-without-symlink-reading
+  template:
+    metadata:
+      labels:
+        app: my-awesome-app-without-symlink-reading
+    spec:
+      initContainers:
+      - name: funnel
+        image: robertdiebels/funnel
+        env:
+          - name: LOG_LEVEL
+            value: DEBUG
+        volumeMounts:
+        - mountPath: /usr/src/app/from/
+          name: secret-volume
+          readOnly: true
+        - mountPath: /usr/src/app/to/
+          name: persistent-volume
+      containers:
+      - name: myapp-container
+        image: busybox
+        command: ['sh', '-c','echo "There should be something below this sentence"; ls /opt/share/config; echo "There should be nothing below this sentence."; ls -lR /opt/share/config | grep ^l']
+        volumeMounts:
+        - mountPath: /opt/share/config
+          name: persistent-volume
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: super-secret-secret
+      - name: persistent-volume
+        persistentVolumeClaim:
+          claimName: i-am-root
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: i-am-root
+spec:
+ accessModes:
+   - ReadWriteMany
+ resources:
+   requests:
+     storage: 10Mi
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: super-secret-secret
+type: Opaque
+data:
+  base64.txt: "bWFueSA2NCBzdWNoIGJhc2Ugd293"
+
+````
+
 ### Logging
 By default only errors funnel only logs errors. However should you want to know if the copying of a file was done correctly you can specify a LOG_LEVEL.
 Current LOG_LEVEL options are:
