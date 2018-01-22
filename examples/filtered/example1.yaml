@@ -1,0 +1,119 @@
+apiVersion: v1
+data:
+  content.json: |
+    {
+    such: "content",
+    many: "amaze"
+    }
+kind: ConfigMap
+metadata:
+  name: from-config-0-0
+---
+
+apiVersion: v1
+data:
+  content.json: |
+    Helloooo?
+kind: ConfigMap
+metadata:
+  name: from-config-0-1
+---
+
+apiVersion: v1
+data:
+  content.txt: |
+    Wait.. I feel I've been conducted.. BUT! IT CAN'T BE!
+kind: ConfigMap
+metadata:
+  name: from-config-1-0
+---
+
+apiVersion: v1
+data:
+  content.txt: |
+    I must have called a thousand times!!
+kind: ConfigMap
+metadata:
+  name: from-config-1-1
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: funnel
+  labels:
+    app: funnel
+spec:
+  ports:
+  clusterIP: None
+  selector:
+    app: funnel
+---
+# NOTE: The StatefulSet will crash because the busybox container terminates after executing a command.
+# The container you put in place of busybox should not terminate unless an error occurs.
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: hostname
+spec:
+  serviceName: "funnel"
+  podManagementPolicy: "Parallel"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: funnel
+  template:
+    metadata:
+      labels:
+        app: funnel
+    spec:
+      initContainers:
+      - name: funnel
+        image: robertdiebels/funnel:nightly
+        imagePullPolicy: "Always"
+        env:
+        - name: "FILTER_TYPE"
+          value: "HOST_NAME"
+        volumeMounts:
+        - mountPath: /usr/src/app/from/hostname-0
+          name: hostname-0-volume-0
+        - mountPath: /usr/src/app/from/is-it-me-youre-looking-for
+          name: hostname-0-volume-1
+        - mountPath: /usr/src/app/from/pendant/hostname-1
+          name: hostname-1-volume-0
+        - mountPath: /usr/src/app/from/hello-how-are-you
+          name: hostname-1-volume-1
+        - mountPath: /usr/src/app/to/
+          name: persistent-volume
+      containers:
+      - name: myapp-container
+        image: busybox
+        # NOTE: If you've used this example more than once and you've changed the mountPaths before. It may be that you see more folders than in this example.
+        # Be sure to delete the persistentVolumes bound to the volumeClaimTemplates defined below and the volumeClaimTemplate themselves when you give this example several tries.
+        command: ['sh', '-c','export HOST_NAME=`hostname`; echo "Should only allow files from directories named:" $HOST_NAME; echo "So, there should be something below this sentence"; ls /opt/share/config; ls /opt/share/config/pendant; echo "And, there should be nothing below this sentence."; ls -lR /opt/share/config | grep ^l']
+        volumeMounts:
+        - mountPath: /opt/share/config
+          name: persistent-volume
+      volumes:
+      - name: hostname-0-volume-0
+        configMap:
+          name: from-config-0-0
+      - name: hostname-0-volume-1
+        configMap:
+          name: from-config-0-0
+      - name: hostname-1-volume-0
+        configMap:
+          name: from-config-1-0
+      - name: hostname-1-volume-1
+        configMap:
+          name: from-config-1-1
+  volumeClaimTemplates:
+  - metadata:
+      name: persistent-volume
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: standard
+      resources:
+        requests:
+          storage: 10Mi

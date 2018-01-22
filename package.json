@@ -1,11 +1,11 @@
 {
   "name": "funnel",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A cone-shaped utensil with a tube at the apex for conducting data from volume to volume.",
-  "main": "index.js",
+  "main": "./src/main/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node . index.js"
+    "start": "node ./src/main/index.js"
   },
   "keywords": [
     "funnel",
@@ -14,7 +14,12 @@
     "volume",
     "configmaps",
     "configmap",
-    "transfer"
+    "transfer",
+    "filters",
+    "statefulset",
+    "statefulsets",
+    "deployment",
+    "deployments"
   ],
   "author": "Robert Diebels",
   "license": "ISC",
