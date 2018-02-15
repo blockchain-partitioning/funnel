@@ -69,7 +69,16 @@ Many permutations are possible. Some are listed below.
 
 #### ConfigMap to PersistentVolume (root-root)
 ````yaml
-apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
+apiVersion: v1
+data:
+  content.txt: |
+    Wait.. I feel I've been conducted.. BUT! IT CAN'T BE!
+kind: ConfigMap
+metadata:
+  name: from-config
+---
+
+apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   name: my-awesome-app-without-symlink-reading-deployment
@@ -123,7 +132,16 @@ spec:
 ````
 #### ConfigMap to PersistentVolume (root-subpath)
 ````yaml
-apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
+apiVersion: v1
+data:
+  content.txt: |
+    Wait.. I feel I've been conducted.. BUT! IT CAN'T BE!
+kind: ConfigMap
+metadata:
+  name: from-config
+---
+
+apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   name: my-awesome-app-without-symlink-reading-deployment
@@ -178,7 +196,7 @@ spec:
 
 #### Secret to PersistentVolume
 ````yaml
-apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
+apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   name: my-awesome-app-without-symlink-reading-deployment

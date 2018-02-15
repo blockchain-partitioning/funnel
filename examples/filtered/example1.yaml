@@ -13,7 +13,7 @@ metadata:
 apiVersion: v1
 data:
   content.json: |
-    Helloooo?
+    ["Helloooo?"]
 kind: ConfigMap
 metadata:
   name: from-config-0-1
